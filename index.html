@@ -1,399 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/png" href="icon.png">
-<title>BDS Migrator · BDS 14/15 → 16</title>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #0a0a0f;
-  --surface: #111118;
-  --surface2: #16161f;
-  --border: #1e1e2e;
-  --border2: #2a2a3e;
-  --accent: #dd0031;
-  --accent2: #c3002f;
-  --accent-glow: rgba(221,0,49,0.15);
-  --ok: #00e676;
-  --warn: #ffab40;
-  --danger: #ff5252;
-  --info: #40c4ff;
-  --purple: #b39ddb;
-  --text: #e8e8f0;
-  --text2: #888899;
-  --text3: #555566;
-  --mono: 'JetBrains Mono', monospace;
-  --sans: 'Syne', sans-serif;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--sans);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 40px 40px;
-  opacity: 0.3;
-  pointer-events: none;
-  z-index: 0;
-}
-.container {
-  position: relative;
-  z-index: 1;
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 24px 80px;
-}
-
-/* ── HEADER ── */
-header {
-  padding: 36px 0 28px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 36px;
-}
-.logo { display: flex; align-items: center; gap: 14px; }
-.logo-icon {
-  width: 46px; height: 46px;
-  background: var(--accent);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 800; color: white;
-  font-family: var(--mono);
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-  flex-shrink: 0;
-  letter-spacing: -0.5px;
-}
-.logo h1 { font-size: 21px; font-weight: 800; letter-spacing: -0.5px; }
-.logo h1 span { color: var(--accent); }
-.logo p { font-size: 11px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
-.hdr-right { font-family: var(--mono); font-size: 11px; color: var(--text3); text-align: right; line-height: 2; }
-.hdr-right .live { color: var(--ok); }
-.hdr-right .live::before { content: '● '; }
-
-/* ── MODE TABS ── */
-.mode-tabs {
-  display: flex;
-  gap: 0;
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  overflow: hidden;
-  margin-bottom: 28px;
-  width: fit-content;
-}
-.mode-tab {
-  padding: 9px 22px;
-  font-family: var(--mono);
-  font-size: 12px;
-  cursor: pointer;
-  border: none;
-  background: var(--surface);
-  color: var(--text3);
-  transition: all 0.2s;
-  border-right: 1px solid var(--border2);
-}
-.mode-tab:last-child { border-right: none; }
-.mode-tab:hover { color: var(--text2); background: var(--surface2); }
-.mode-tab.active { background: var(--accent); color: white; font-weight: 700; }
-
-/* ── INPUT AREA ── */
-.input-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 16px;
-}
-.input-grid.single { grid-template-columns: 1fr; }
-
-.input-block { display: flex; flex-direction: column; gap: 8px; }
-.input-label {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.input-label .tag {
-  background: var(--surface2);
-  border: 1px solid var(--border2);
-  border-radius: 4px;
-  padding: 1px 7px;
-  font-size: 9px;
-  color: var(--accent);
-}
-textarea {
-  width: 100%;
-  height: 200px;
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  padding: 14px 16px;
-  font-family: var(--mono);
-  font-size: 11.5px;
-  line-height: 1.7;
-  color: var(--text);
-  resize: vertical;
-  outline: none;
-  transition: border-color 0.2s;
-}
-textarea:focus { border-color: var(--accent); }
-textarea::placeholder { color: var(--text3); }
-
-/* ── ACTION BAR ── */
-.action-bar {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 28px;
-  flex-wrap: wrap;
-}
-.btn-primary {
-  padding: 10px 22px;
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-family: var(--sans);
-  font-weight: 700;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex; align-items: center; gap: 8px;
-}
-.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
-.btn-secondary {
-  padding: 10px 20px;
-  background: transparent;
-  color: var(--text2);
-  border: 1px solid var(--border2);
-  border-radius: 8px;
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: 13px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-secondary:hover { border-color: var(--text2); color: var(--text); }
-.btn-copy {
-  padding: 6px 14px;
-  background: transparent;
-  border: 1px solid var(--border2);
-  border-radius: 5px;
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text2);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-copy:hover { border-color: var(--accent); color: var(--accent); }
-.btn-copy.copied { border-color: var(--ok); color: var(--ok); }
-
-/* ── RESULTS ── */
-.results-wrap { display: flex; flex-direction: column; gap: 16px; }
-
-/* Diff card */
-.diff-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-}
-.diff-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface2);
-}
-.diff-card-title {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text2);
-  display: flex; align-items: center; gap: 8px;
-}
-.diff-card-title::before { content: '▸'; color: var(--accent); }
-.kpi-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.kpi-pill {
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-}
-.kpi-pill.modules { background: rgba(64,196,255,0.1); color: var(--info); border: 1px solid rgba(64,196,255,0.2); }
-.kpi-pill.attrs   { background: rgba(255,171,64,0.1); color: var(--warn); border: 1px solid rgba(255,171,64,0.2); }
-.kpi-pill.standalone { background: rgba(0,230,118,0.1); color: var(--ok); border: 1px solid rgba(0,230,118,0.2); }
-
-.diff-body { padding: 10px 16px; display: flex; flex-direction: column; gap: 2px; }
-
-.diff-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--border);
-}
-.diff-row:last-child { border-bottom: none; }
-.diff-old {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--danger);
-  background: rgba(255,82,82,0.08);
-  border: 1px solid rgba(255,82,82,0.2);
-  padding: 2px 8px;
-  border-radius: 4px;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-.diff-attr {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--warn);
-  background: rgba(255,171,64,0.08);
-  border: 1px solid rgba(255,171,64,0.2);
-  padding: 2px 8px;
-  border-radius: 4px;
-  flex-shrink: 0;
-  white-space: nowrap;
-}
-.diff-arrow { color: var(--text3); font-size: 11px; padding-top: 3px; flex-shrink: 0; font-family: var(--mono); }
-.diff-new {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
-.diff-new span {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--ok);
-  background: rgba(0,230,118,0.08);
-  border: 1px solid rgba(0,230,118,0.2);
-  padding: 2px 8px;
-  border-radius: 4px;
-  white-space: nowrap;
-}
-
-/* Output card */
-.output-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  overflow: hidden;
-}
-.output-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface2);
-}
-.output-title {
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--text2);
-  display: flex; align-items: center; gap: 8px;
-}
-.output-title::before { content: '▸'; color: var(--ok); }
-
-pre {
-  font-family: var(--mono);
-  font-size: 11.5px;
-  line-height: 1.75;
-  padding: 16px 18px;
-  white-space: pre-wrap;
-  word-break: break-all;
-  color: var(--text);
-  max-height: 480px;
-  overflow-y: auto;
-}
-pre::-webkit-scrollbar { width: 5px; }
-pre::-webkit-scrollbar-track { background: var(--bg); }
-pre::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-
-/* Syntax highlight classes */
-.s-import { color: var(--purple); }
-.s-from   { color: var(--text2); }
-.s-pkg    { color: var(--warn); }
-.s-name   { color: var(--info); }
-.s-key    { color: var(--accent); }
-.s-comment{ color: var(--text3); }
-
-/* Empty state */
-.empty-state {
-  text-align: center;
-  padding: 48px 20px;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--text3);
-  border: 1px dashed var(--border2);
-  border-radius: 10px;
-}
-.empty-state .ico { font-size: 32px; margin-bottom: 12px; display: block; }
-
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 24px; right: 24px;
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-left: 3px solid var(--ok);
-  border-radius: 8px;
-  padding: 12px 18px;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--ok);
-  transform: translateY(80px);
-  opacity: 0;
-  transition: all 0.3s;
-  z-index: 100;
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-
-/* Section sep */
-.sec-label {
-  font-family: var(--mono);
-  font-size: 10px;
-  color: var(--text3);
-  text-transform: uppercase;
-  letter-spacing: 1.2px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.sec-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-@media(max-width:700px){
-  .input-grid { grid-template-columns: 1fr; }
-  header { flex-direction: column; gap: 12px; align-items: flex-start; }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="icon.png">
+  <title>BDS Migrator · BDS 14/15 → 16</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
 <div class="container">
 
-  <!-- HEADER -->
+  <!-- ── HEADER ── -->
   <header>
     <div class="logo">
       <div class="logo-icon">BDS</div>
@@ -409,15 +28,16 @@ pre::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
     </div>
   </header>
 
-  <!-- MODE SELECTOR -->
+  <!-- ── MODE TABS ── -->
   <div class="mode-tabs">
     <button class="mode-tab active" id="tab-ts"   onclick="setMode('ts')">TypeScript</button>
     <button class="mode-tab"        id="tab-html" onclick="setMode('html')">HTML</button>
     <button class="mode-tab"        id="tab-both" onclick="setMode('both')">TS + HTML</button>
   </div>
 
-  <!-- INPUTS -->
-  <div class="input-grid" id="inputGrid">
+  <!-- ── INPUTS ── -->
+  <div class="input-grid single" id="inputGrid">
+
     <div class="input-block" id="tsBlock">
       <div class="input-label">
         archivo .ts
@@ -433,6 +53,7 @@ import { BcCircleLoadingModule } from '@bancolombia/design-system-web/bc-circle-
 })
 export class DemoComponent { }"></textarea>
     </div>
+
     <div class="input-block" id="htmlBlock" style="display:none">
       <div class="input-label">
         template .html
@@ -457,19 +78,20 @@ export class DemoComponent { }"></textarea>
 </bc-table-container>
 <button bc-button>Crear</button>"></textarea>
     </div>
+
   </div>
 
-  <!-- ACTION BAR -->
+  <!-- ── ACTION BAR ── -->
   <div class="action-bar">
     <button class="btn-primary" onclick="migrate()">▶ Migrar imports</button>
     <button class="btn-secondary" onclick="clearAll()">↺ Limpiar</button>
     <div style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text3)" id="statusBar"></div>
   </div>
 
-  <!-- RESULTS -->
+  <!-- ── RESULTS ── -->
   <div class="results-wrap" id="resultsWrap" style="display:none">
 
-    <!-- DIFF -->
+    <!-- Diff -->
     <div>
       <div class="sec-label">cambios detectados</div>
       <div class="diff-card">
@@ -481,7 +103,7 @@ export class DemoComponent { }"></textarea>
       </div>
     </div>
 
-    <!-- OUTPUT -->
+    <!-- Output -->
     <div>
       <div class="sec-label" id="outputSecLabel">resultado</div>
       <div class="output-card">
@@ -495,7 +117,7 @@ export class DemoComponent { }"></textarea>
 
   </div>
 
-  <!-- EMPTY -->
+  <!-- ── EMPTY STATE ── -->
   <div class="empty-state" id="emptyState" style="display:none">
     <span class="ico">⚠</span>
     No se encontraron módulos BDS ni directivas de atributo para migrar.
@@ -505,308 +127,6 @@ export class DemoComponent { }"></textarea>
 
 <div class="toast" id="toast"></div>
 
-<script>
-document.getElementById('currentDate').textContent = new Date().toLocaleDateString('es-CO', { year:'numeric', month:'short', day:'numeric' });
-
-/* ═══════════════════════ MAPPING ═══════════════════════ */
-const BDS_MAP = {
-  BcCircleLoadingModule:  { pkg:'bc-circle-loading',  standalone:['BcCircleLoadingComponent'] },
-  BcSearchModule:         { pkg:'bc-search',           standalone:['BcSearchComponent','BcSearchLeftComponent','BcSearchAdvancedComponent','BcSearchAdvancedItemComponent','BcSearchResultFilterComponent','BcSearchButtonComponent','BcSearchContentItemsComponent'] },
-  BcInputModule:          { pkg:'bc-input',            standalone:['BcInputDirective','BcFormFieldComponent'] },
-  BcFormFieldModule:      { pkg:'bc-input',            standalone:['BcFormFieldComponent','BcInputDirective'] },
-  BcButtonModule:         { pkg:'bc-button',           standalone:['BcButtonDirective'] },
-  BcTableModule:          { pkg:'bc-table',            standalone:['BcTableDirective','BcCellDirective','BcTableContainerComponent','BcTableContentComponent','BcTableHeaderComponent','BcTableFooterComponent','BcTableDropdownComponent'] },
-  BcPaginatorV2Module:    { pkg:'bc-paginator-v2',     standalone:['BcPaginatorV2Component'] },
-  BcPaginatorModule:      { pkg:'bc-paginator',        standalone:['BcPaginatorComponent'] },
-  BcIconModule:           { pkg:'bc-icon',             standalone:['BcIconComponent'] },
-  BcModalModule:          { pkg:'bc-modal',            standalone:['BcModalComponent'] },
-  BcBreadcrumbModule:     { pkg:'bc-breadcrumb',       standalone:['BcBreadcrumbComponent'] },
-  BcShortcutModule:       { pkg:'bc-shortcut',         standalone:['BcShortcutGroupComponent','BcShortcutComponent'] },
-  BcStepperModule:        { pkg:'bc-stepper',          standalone:['BcStepperComponent'] },
-  BcAlertModule:          { pkg:'bc-alert',            standalone:['BcAlertComponent'] },
-  BcPictogramModule:      { pkg:'bc-pictogram',        standalone:['BcPictogramComponent'] },
-  BcTooltipModule:        { pkg:'bc-tooltip',          standalone:['BcTooltipDirective'] },
-  BcAccordionModule:      { pkg:'bc-accordion',        standalone:['BcAccordionComponent','BcAccordionItemComponent'] },
-  BcTabsModule:           { pkg:'bc-tabs',             standalone:['BcTabsComponent','BcTabComponent'] },
-  BcRadioModule:          { pkg:'bc-radio',            standalone:['BcRadioComponent'] },
-  BcCheckboxModule:       { pkg:'bc-checkbox',         standalone:['BcCheckboxComponent'] },
-  BcSelectModule:         { pkg:'bc-select',           standalone:['BcSelectComponent'] },
-  BcCardModule:           { pkg:'bc-card',             standalone:['BcCardComponent'] },
-  BcTagModule:            { pkg:'bc-tag',              standalone:['BcTagComponent'] },
-  BcChipModule:           { pkg:'bc-chip',             standalone:['BcChipComponent'] },
-  BcBadgeModule:          { pkg:'bc-badge',            standalone:['BcBadgeComponent'] },
-  BcProgressModule:       { pkg:'bc-progress',         standalone:['BcProgressComponent'] },
-  BcToggleModule:         { pkg:'bc-toggle',           standalone:['BcToggleComponent'] },
-  BcUploadModule:         { pkg:'bc-upload',           standalone:['BcUploadComponent'] },
-  BcDatepickerModule:     { pkg:'bc-datepicker',       standalone:['BcDatepickerComponent'] },
-  BcSliderModule:         { pkg:'bc-slider',           standalone:['BcSliderComponent'] },
-  BcNotificationModule:   { pkg:'bc-notification',     standalone:['BcNotificationComponent'] },
-  BcSpinnerModule:        { pkg:'bc-spinner',          standalone:['BcSpinnerComponent'] },
-  BcDropdownModule:       { pkg:'bc-dropdown',         standalone:['BcDropdownComponent'] },
-  BcMenuModule:           { pkg:'bc-menu',             standalone:['BcMenuComponent'] },
-  BcStepperV2Module:      { pkg:'bc-stepper-v2',       standalone:['BcStepperV2Component'] },
-  BcAlertDialogModule:    { pkg:'bc-alert-dialog',     standalone:['BcAlertDialogComponent'] },
-};
-
-// Tags de componente HTML → módulo
-const HTML_TAG_MAP = {
-  'bc-circle-loading':       'BcCircleLoadingModule',
-  'bc-search':               'BcSearchModule',
-  'bc-search-left':          'BcSearchModule',
-  'bc-search-advanced':      'BcSearchModule',
-  'bc-search-item-advanced': 'BcSearchModule',
-  'bc-search-result-filter': 'BcSearchModule',
-  'bc-search-button':        'BcSearchModule',
-  'bc-search-content-items': 'BcSearchModule',
-  'bc-table-container':      'BcTableModule',
-  'bc-table-content':        'BcTableModule',
-  'bc-table-header':         'BcTableModule',
-  'bc-table-footer':         'BcTableModule',
-  'bc-table-dropdown':       'BcTableModule',
-  'bc-paginator-v2':         'BcPaginatorV2Module',
-  'bc-paginator':            'BcPaginatorModule',
-  'bc-modal':                'BcModalModule',
-  'bc-breadcrumb':           'BcBreadcrumbComponent',
-  'bc-pictogram':            'BcPictogramModule',
-  'bc-shortcut':             'BcShortcutModule',
-  'bc-shortcut-group':       'BcShortcutModule',
-  'bc-accordion':            'BcAccordionModule',
-  'bc-tabs':                 'BcTabsModule',
-  'bc-radio':                'BcRadioModule',
-  'bc-checkbox':             'BcCheckboxModule',
-  'bc-select':               'BcSelectModule',
-  'bc-card':                 'BcCardModule',
-  'bc-tag':                  'BcTagModule',
-  'bc-chip':                 'BcChipModule',
-  'bc-badge':                'BcBadgeModule',
-  'bc-progress':             'BcProgressModule',
-  'bc-toggle':               'BcToggleModule',
-  'bc-upload':               'BcUploadModule',
-  'bc-datepicker':           'BcDatepickerModule',
-  'bc-slider':               'BcSliderModule',
-  'bc-notification':         'BcNotificationModule',
-  'bc-spinner':              'BcSpinnerModule',
-  'bc-icon':                 'BcIconModule',
-  'bc-form-field':           'BcInputModule',
-  'bc-dropdown':             'BcDropdownModule',
-  'bc-menu':                 'BcMenuModule',
-};
-
-// Directivas de atributo → info
-const ATTR_MAP = {
-  'bc-input':      { module:'BcInputModule',  standalone:'BcInputDirective',     pkg:'bc-input' },
-  'bc-cell':       { module:'BcTableModule',  standalone:'BcCellDirective',      pkg:'bc-table' },
-  'bc-table':      { module:'BcTableModule',  standalone:'BcTableDirective',     pkg:'bc-table' },
-  'bc-button':     { module:'BcButtonModule', standalone:'BcButtonDirective',    pkg:'bc-button' },
-  'bc-input-file': { module:'BcUploadModule', standalone:'BcInputFileDirective', pkg:'bc-upload' },
-};
-
-/* ═══════════════════════ MODE ═══════════════════════ */
-let mode = 'ts';
-function setMode(m) {
-  mode = m;
-  ['ts','html','both'].forEach(id => document.getElementById('tab-'+id).classList.toggle('active', id===m));
-  document.getElementById('tsBlock').style.display   = m==='html'  ? 'none' : 'block';
-  document.getElementById('htmlBlock').style.display = m==='ts'    ? 'none' : 'block';
-  document.getElementById('inputGrid').className = 'input-grid' + (m==='both' ? '' : ' single');
-  clearResults();
-}
-
-/* ═══════════════════════ DETECT ═══════════════════════ */
-function detectFromHTML(html) {
-  const modules  = new Set();
-  const attrs    = new Set();
-  for (const [tag, mod] of Object.entries(HTML_TAG_MAP)) {
-    if (new RegExp('<' + tag.replace(/-/g,'\\-') + '[\\s>/]').test(html)) modules.add(mod);
-  }
-  for (const [attr, info] of Object.entries(ATTR_MAP)) {
-    if (new RegExp('\\b' + attr.replace(/-/g,'\\-') + '\\b').test(html)) {
-      modules.add(info.module);
-      attrs.add(attr);
-    }
-  }
-  return { modules:[...modules], attrs:[...attrs] };
-}
-
-function buildPkgGroups(moduleNames) {
-  const groups = {};
-  for (const name of moduleNames) {
-    const info = BDS_MAP[name];
-    if (!info) continue;
-    if (!groups[info.pkg]) groups[info.pkg] = new Set();
-    info.standalone.forEach(s => groups[info.pkg].add(s));
-  }
-  return groups;
-}
-
-/* ═══════════════════════ MIGRATE ═══════════════════════ */
-function migrateTS(ts, html) {
-  const detected = new Set();
-  const attrs    = new Set();
-
-  for (const name of Object.keys(BDS_MAP)) {
-    if (new RegExp('\\b' + name + '\\b').test(ts)) detected.add(name);
-  }
-  if (html) {
-    const { modules, attrs: a } = detectFromHTML(html);
-    modules.forEach(m => detected.add(m));
-    a.forEach(x => attrs.add(x));
-  }
-  if (!detected.size) return null;
-
-  let result = ts;
-
-  // Eliminar import lines de módulos viejos
-  for (const name of detected) {
-    result = result.replace(
-      new RegExp(`import\\s*\\{[^}]*\\b${name}\\b[^}]*\\}\\s*from\\s*['"][^'"]+['"];?\\r?\\n?`, 'g'), ''
-    );
-  }
-
-  // Nuevas líneas de import
-  const groups = buildPkgGroups([...detected]);
-  const newLines = Object.entries(groups)
-    .map(([pkg, names]) => `import { ${[...names].join(', ')} } from '@bancolombia/design-system-web/${pkg}';`)
-    .join('\n');
-
-  const firstImport = result.search(/^import /m);
-  result = firstImport >= 0
-    ? result.substring(0, firstImport) + newLines + '\n' + result.substring(firstImport)
-    : newLines + '\n' + result;
-
-  // Reemplazar bloque imports: [...]
-  result = result.replace(/imports:\s*\[([^\]]*)\]/s, (_, inner) => {
-    let cleaned = inner;
-    for (const name of detected) cleaned = cleaned.replace(new RegExp(`\\b${name}\\b,?\\s*`, 'g'), '');
-    const existing  = cleaned.split(',').map(s => s.trim()).filter(s => s && !BDS_MAP[s]);
-    const allNew    = [...new Set(Object.values(groups).flatMap(s => [...s]))];
-    const combined  = [...new Set([...allNew, ...existing])];
-    const fmt = combined.length > 3
-      ? '\n        ' + combined.join(',\n        ') + ',\n    '
-      : combined.join(', ');
-    return `imports: [${fmt}]`;
-  });
-
-  result = result.replace(/\n{3,}/g, '\n\n');
-
-  const replacements = [...detected].map(name => ({ from:name, to:BDS_MAP[name]?.standalone||[], type:'module' }));
-  const attrReplacements = [...attrs].map(a => ({ from:a, to:[ATTR_MAP[a].standalone], type:'attr' }));
-
-  return { result, replacements:[...replacements,...attrReplacements], detected:[...detected], attrs:[...attrs] };
-}
-
-function migrateHTMLOnly(html) {
-  const { modules, attrs } = detectFromHTML(html);
-  if (!modules.length) return null;
-
-  const groups    = buildPkgGroups(modules);
-  const lines     = Object.entries(groups).map(([pkg, names]) => `import { ${[...names].join(', ')} } from '@bancolombia/design-system-web/${pkg}';`);
-  const allNew    = [...new Set(Object.values(groups).flatMap(s => [...s]))];
-
-  const result =
-    `// Imports para el tope del .ts\n` + lines.join('\n') +
-    `\n\n// Bloque imports:[]\nimports: [\n    ` + allNew.join(',\n    ') + `\n]`;
-
-  const replacements = modules.map(n => ({ from:n, to:BDS_MAP[n]?.standalone||[], type:'module' }));
-  const attrR = attrs.map(a => ({ from:a, to:[ATTR_MAP[a].standalone], type:'attr' }));
-
-  return { result, replacements:[...replacements,...attrR], detected:modules, attrs };
-}
-
-/* ═══════════════════════ RUN ═══════════════════════ */
-function migrate() {
-  const ts   = document.getElementById('inputTs').value.trim();
-  const html = document.getElementById('inputHtml').value.trim();
-  clearResults();
-
-  let res = null;
-  if (mode==='ts')   res = migrateTS(ts, '');
-  else if (mode==='html') res = migrateHTMLOnly(html);
-  else res = migrateTS(ts, html);
-
-  if (!res) {
-    document.getElementById('emptyState').style.display = 'block';
-    return;
-  }
-
-  renderResults(res);
-}
-
-function renderResults(res) {
-  // KPI pills
-  const modCount = res.detected.length;
-  const attrCount = res.attrs ? res.attrs.length : 0;
-  const standaloneCount = [...new Set(res.replacements.flatMap(r => r.to))].length;
-  document.getElementById('kpiRow').innerHTML =
-    `<span class="kpi-pill modules">${modCount} módulo${modCount!==1?'s':''}</span>` +
-    (attrCount ? `<span class="kpi-pill attrs">${attrCount} directiva${attrCount!==1?'s':''} atributo</span>` : '') +
-    `<span class="kpi-pill standalone">${standaloneCount} standalone</span>`;
-
-  // Diff rows
-  const diffBody = document.getElementById('diffBody');
-  diffBody.innerHTML = res.replacements.map(r => `
-    <div class="diff-row">
-      <span class="${r.type==='attr'?'diff-attr':'diff-old'}">${r.from}</span>
-      <span class="diff-arrow">→</span>
-      <div class="diff-new">${r.to.map(t=>`<span>${t}</span>`).join('')}</div>
-    </div>`).join('');
-
-  // Output with syntax highlight
-  document.getElementById('outputTitle').textContent =
-    mode==='html' ? 'imports generados' : 'archivo .ts migrado';
-  document.getElementById('outputPre').innerHTML = syntaxHL(res.result);
-  document.getElementById('outputPre')._raw = res.result;
-
-  document.getElementById('resultsWrap').style.display = 'flex';
-  document.getElementById('statusBar').textContent =
-    `✓ ${modCount} módulo${modCount!==1?'s':''} migrado${modCount!==1?'s':''} · ${standaloneCount} standalone imports`;
-}
-
-/* ═══════════════════════ SYNTAX HIGHLIGHT ═══════════════════════ */
-function syntaxHL(code) {
-  return code
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-    .replace(/(import)\s/g, '<span class="s-import">$1</span> ')
-    .replace(/\bfrom\b/g, '<span class="s-from">from</span>')
-    .replace(/('[@\w\/\-\.]+bancolombia[^']*')/g, '<span class="s-pkg">$1</span>')
-    .replace(/\b(Bc[A-Z]\w+(?:Component|Directive|Module|Pipe))\b/g, '<span class="s-name">$1</span>')
-    .replace(/(imports|providers|declarations|exports):/g, '<span class="s-key">$1</span>:')
-    .replace(/(\/\/[^\n]*)/g, '<span class="s-comment">$1</span>');
-}
-
-/* ═══════════════════════ UTILS ═══════════════════════ */
-function copyOutput() {
-  const raw = document.getElementById('outputPre')._raw || document.getElementById('outputPre').textContent;
-  navigator.clipboard.writeText(raw).then(() => {
-    const btn = document.getElementById('copyBtn');
-    btn.textContent = '✓ copiado';
-    btn.classList.add('copied');
-    showToast('Código copiado al portapapeles');
-    setTimeout(() => { btn.textContent = '📋 copiar'; btn.classList.remove('copied'); }, 1800);
-  });
-}
-
-function clearAll() {
-  document.getElementById('inputTs').value = '';
-  document.getElementById('inputHtml').value = '';
-  clearResults();
-  document.getElementById('statusBar').textContent = '';
-}
-
-function clearResults() {
-  document.getElementById('resultsWrap').style.display = 'none';
-  document.getElementById('emptyState').style.display = 'none';
-  document.getElementById('diffBody').innerHTML = '';
-  document.getElementById('outputPre').innerHTML = '';
-  document.getElementById('kpiRow').innerHTML = '';
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
-}
-</script>
+<script src="app.js"></script>
 </body>
 </html>
